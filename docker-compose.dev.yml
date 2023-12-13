@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  api-geteway: 
+    container_name: api-gateway-container
+    build:
+      context: ./API-Geteway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - grpc-service-networks
+
+  auth:
+    container_name: auth-container
+    build:
+      context: ./go-grpc-auth-svc
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    depends_on:
+      - postgres
+    command: ./myapp
+    networks:
+      - grpc-service-networks
+
+  product:
+    container_name: product-container
+    build:
+      context: ./go-grpc-product-svc
+      dockerfile: Dockerfile
+    ports:
+      - "50052:50052"
+    depends_on:
+      - postgres
+    networks:
+      - grpc-service-networks
+
+  order:
+    container_name: order-container
+    build:
+      context: ./go-grpc-order-svc
+      dockerfile: Dockerfile
+    ports:
+      - "50053:50053"
+    depends_on:
+      - postgres
+    networks:
+      - grpc-service-networks
+
+  postgres:
+    image: postgres
+    container_name: postgres-container
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qwerty
+    ports:
+      - "5432:5432"
+    networks:
+      - grpc-service-networks
+
+networks:
+  grpc-service-networks:
+    driver: bridge
